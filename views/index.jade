@@ -1,0 +1,82 @@
+html
+  head
+    title DOGGFOOD Leaderboard
+    link( rel="stylesheet" media="screen" href="/Munro.ttf" type="text/css")
+    link( rel="stylesheet" media="screen" href="https://s1.wp.com/i/noticons/noticons.css?v=20150727" type="text/css")
+  body
+    style
+      |  @font-face {
+      |    font-family: Munro;
+      |    src: local( "Munro" ), url(Munro.ttf);
+      |  }
+      |  body {
+      |   font-family: 'Munro';
+      |   font-weight: normal;
+      |   font-style: normal;
+      |   background-color: black;
+      |   color: #76EE00;
+      |   text-align: center;
+      |   }
+      |  table {
+      |   width: 80%;
+      |   margin: 0px auto;
+      |   }
+      |  tr {
+      |   padding: 4px 0;
+      |   }
+      |  th, td {
+      |   text-align: center;
+      |   font-size: 26px;
+      |   }
+      |  th.player, td.player {
+      |   text-align: left;
+      |   }
+      |  span.noticon {
+      |   font-size: 32px;
+      |   }
+      |  p.links {
+      |   font-size: 24px;
+      |   }
+      |   a {
+      |     color: #76EE00;
+      |   }
+      |   span.links {
+      |     display: inline-block;
+      |     margin: 0 8px;
+      |    }
+    h1
+      | Total Players:
+      = ' ' + totalPlayers
+    p
+      | github issue scores are real-time, post counts last updated
+      = ': ' + lastUpdate
+    p
+      | 1 Point Earned for Each Post, 2 Points Earned for each Github Issue Logged
+    table( cellpadding="4")
+      thead
+        tr
+          th( width="5%" ) #
+          th( width="35%" class="player" ) player
+          th( width="20%" )
+            span( class="noticon noticon-wordpress")
+          th( width="20%" )
+            span( class="noticon noticon-github" )
+          th( width="20%" ) total score
+      tbody
+        -var index = 1
+        each player in players
+          tr
+            td!= index++
+            td( class="player" )
+              | @
+              = player.username
+            td!= player.posts === 0 ? '-' : player.posts
+            td!= player.issues === 0 ? '-' : player.issues
+            td!= player.total
+      tfoot
+        tr
+          td Totals
+          td -
+          td!= totalPosts
+          td!= totalIssues
+          td -

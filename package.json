@@ -1,0 +1,23 @@
+{
+  "name": "leader",
+  "version": "1.0.0",
+  "description": "leaderboard for calypso",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "timmydcrawford@gmail.com",
+  "license": "ISC",
+  "engines": {
+    "node": "0.12.2"
+  },
+  "dependencies": {
+    "async": "^1.4.0",
+    "body-parser": "^1.13.2",
+    "express": "^4.13.1",
+    "jade": "^1.11.0",
+    "lodash": "^3.10.0",
+    "strip": "0.0.7",
+    "wpcom": "^4.5.1"
+  }
+}
