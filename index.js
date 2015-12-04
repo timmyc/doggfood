@@ -17,6 +17,7 @@ var BEARER_TOKEN = config.wpcom_token || process.env.WPCOM_TOKEN;
 
 var wpcom = require( 'wpcom' )( BEARER_TOKEN ), // new wpcom instance with our bearer token
 	Players = require( './players' ), // an object of our players github -> wpcom user mappings
+	WpcomUsers = require( './wpcom-users' ), // user id -> username mappings meh
 	postCountData = require( './post-counts' ), // data set from an api for post counts
 	site = wpcom.site( config.wpcom_site || process.env.WPCOM_SITE ), // shortcut to the wpcom site we are using for data storage
 	async = require( 'async' ),
@@ -178,12 +179,27 @@ app.post( '/github/issue', function( req, res ) {
 app.post( '/webhook', function( req, res ) {
 	var data = req.body,
 		modified_dt = new Date( data.post_modified_gmt ),
-    	post_dt = new Date( data.post_date_gmt );
+    	post_dt = new Date( data.post_date_gmt ),
+    	username = WpcomUsers[ data.post_author ];
 
-    console.log( 'data', data );
+    if ( ! data.post_author || ! username ) {
+    	res.send( 'omergersh i dunno you!' );
+    }
 
+    // Timestamps are strange sometimes, a bit of fuzz
     if ( Math.abs( modified_dt - post_dt ) < 5000 ) {
-
+    	// If this is a new post, ensure there the user has a post, and then give them a point
+    	async.waterfall( [
+			function( callback ) {
+				ensurePost( username, function( scores ){
+					callback( null, scores );
+				} );
+			},
+			function( scores, callback ) {
+				scores.issues += 1;
+				updateScores( scores, callback );
+			}
+		], function() { res.send( 'mmm points.' ) } );
     }
 } );
 
