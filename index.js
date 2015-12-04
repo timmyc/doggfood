@@ -18,7 +18,6 @@ var BEARER_TOKEN = config.wpcom_token || process.env.WPCOM_TOKEN;
 var wpcom = require( 'wpcom' )( BEARER_TOKEN ), // new wpcom instance with our bearer token
 	Players = require( './players' ), // an object of our players github -> wpcom user mappings
 	WpcomUsers = require( './wpcom-users' ), // user id -> username mappings meh
-	postCountData = require( './post-counts' ), // data set from an api for post counts
 	site = wpcom.site( config.wpcom_site || process.env.WPCOM_SITE ), // shortcut to the wpcom site we are using for data storage
 	async = require( 'async' ),
 	strip = require( 'strip' ),
@@ -140,8 +139,7 @@ app.get( '/', function ( req, res ) {
 			totalPlayers: players.length,
 			players: players,
 			totalPosts: totalPosts,
-			totalIssues: totalIssues,
-			lastUpdate: postCountData.lastUpdate
+			totalIssues: totalIssues
 		} );
 	} );
 } );
@@ -176,15 +174,12 @@ app.post( '/github/issue', function( req, res ) {
 	} 
 } );
 
+// Simple webhook from our blog POST's here, and the post author gets a point
 app.post( '/webhook', function( req, res ) {
 	var data = req.body,
     	username = WpcomUsers[ data.post_author ];
 
-    console.log( username );
-    console.log( data );
-
     if ( ! username ) {
-    	console.log( "dunno" );
     	res.send( 'omergersh i dunno you!' );
     }
 
@@ -196,36 +191,13 @@ app.post( '/webhook', function( req, res ) {
 			} );
 		},
 		function( scores, callback ) {
-			scores.issues += 1;
+			scores.posts += 1;
 			updateScores( scores, callback );
 		}
 	], function() {
-		console.log( 'point logged' );
 		res.send( 'mmm points.' );
 	} );
 } );
-
-app.get( '/update-post-counts', function( req, res ) {
-	// convert data into a nice object
-	var postCounts = {},
-		jobs;
-
-	postCountData.data.forEach( function( stats ) {
-		var totalPosts = 0,
-			username = stats.label;
-
-		stats.data.forEach( function( month ) {
-			totalPosts += month[ 1 ];
-		} );
-		postCounts[ username ] = totalPosts;
-	} );
-
-	jobs = buildJobs( postCounts );
-	async.waterfall( jobs, function() {
-		res.send( 'numbers crunched.' );
-	} );
-} );
-
 
 var server = app.listen( app.get( 'port' ), function () {
 	console.log( "app is now listening on", app.get( 'port' ) );
