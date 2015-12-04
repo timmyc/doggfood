@@ -178,36 +178,31 @@ app.post( '/github/issue', function( req, res ) {
 
 app.post( '/webhook', function( req, res ) {
 	var data = req.body,
-		modified_dt = new Date( data.post_modified_gmt ),
-    	post_dt = new Date( data.post_date_gmt ),
     	username = WpcomUsers[ data.post_author ];
 
     console.log( username );
+    console.log( data );
 
     if ( ! username ) {
     	console.log( "dunno" );
     	res.send( 'omergersh i dunno you!' );
     }
 
-    // Timestamps are strange sometimes, a bit of fuzz
-    if ( Math.abs( modified_dt - post_dt ) < 5000 ) {
-    	console.log( 'bump it' );
-    	// If this is a new post, ensure there the user has a post, and then give them a point
-    	async.waterfall( [
-			function( callback ) {
-				ensurePost( username, function( scores ){
-					callback( null, scores );
-				} );
-			},
-			function( scores, callback ) {
-				scores.issues += 1;
-				updateScores( scores, callback );
-			}
-		], function() {
-
-			res.send( 'mmm points.' );
-		} );
-    }
+    // We have a user, lets give them a point
+	async.waterfall( [
+		function( callback ) {
+			ensurePost( username, function( scores ){
+				callback( null, scores );
+			} );
+		},
+		function( scores, callback ) {
+			scores.issues += 1;
+			updateScores( scores, callback );
+		}
+	], function() {
+		console.log( 'point logged' ;)
+		res.send( 'mmm points.' );
+	} );
 } );
 
 app.get( '/update-post-counts', function( req, res ) {
