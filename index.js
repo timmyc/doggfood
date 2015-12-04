@@ -200,7 +200,7 @@ app.post( '/webhook', function( req, res ) {
 			updateScores( scores, callback );
 		}
 	], function() {
-		console.log( 'point logged' ;)
+		console.log( 'point logged' );
 		res.send( 'mmm points.' );
 	} );
 } );
