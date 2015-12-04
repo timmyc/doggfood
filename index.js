@@ -182,12 +182,16 @@ app.post( '/webhook', function( req, res ) {
     	post_dt = new Date( data.post_date_gmt ),
     	username = WpcomUsers[ data.post_author ];
 
-    if ( ! data.post_author || ! username ) {
+    console.log( username );
+
+    if ( ! username ) {
+    	console.log( "dunno" );
     	res.send( 'omergersh i dunno you!' );
     }
 
     // Timestamps are strange sometimes, a bit of fuzz
     if ( Math.abs( modified_dt - post_dt ) < 5000 ) {
+    	console.log( 'bump it' );
     	// If this is a new post, ensure there the user has a post, and then give them a point
     	async.waterfall( [
 			function( callback ) {
@@ -199,7 +203,10 @@ app.post( '/webhook', function( req, res ) {
 				scores.issues += 1;
 				updateScores( scores, callback );
 			}
-		], function() { res.send( 'mmm points.' ) } );
+		], function() {
+
+			res.send( 'mmm points.' );
+		} );
     }
 } );
 
