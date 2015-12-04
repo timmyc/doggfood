@@ -7,8 +7,8 @@ var express = require( 'express' ),
 	config = require( './config' );
 
 // Setup some Express stuff
-app.use( bodyParser.json() ); // support json encoded bodies
-app.use( bodyParser.urlencoded( { extended: true } ) ); // support encoded bodies
+app.use( bodyParser.json() );
+app.use( bodyParser.urlencoded( { extended: true } ) );
 app.use( express.static( 'public' ) );
 app.set( 'view engine', 'jade' );
 app.set('port', (process.env.PORT || 5000));
@@ -17,7 +17,7 @@ var BEARER_TOKEN = config.wpcom_token || process.env.WPCOM_TOKEN;
 
 var wpcom = require( 'wpcom' )( BEARER_TOKEN ), // new wpcom instance with our bearer token
 	Players = require( './players' ), // an object of our players github -> wpcom user mappings
-	WpcomUsers = require( './wpcom-users' ), // user id -> username mappings meh
+	WpcomUsers = require( './wpcom-users' ), // wpcom user id -> username mappings meh
 	site = wpcom.site( config.wpcom_site || process.env.WPCOM_SITE ), // shortcut to the wpcom site we are using for data storage
 	async = require( 'async' ),
 	strip = require( 'strip' ),
@@ -77,32 +77,6 @@ function ensurePost( username, cb ) {
 			cb( getScores( data ) );
 		}
 	} );
-}
-
-// build up an array of async operations to update post counts
-function buildJobs( data ) {
-	var jobs = [];
-	forEach( data, function( numberPosts, username ) {
-		// ensure post
-		jobs.push(
-			function( callback ) {
-				ensurePost( username, function( scores ){
-					callback( null, scores );
-				} );
-			}
-		);
-
-		// bump count
-		jobs.push(
-			function( scores, callback ) {
-				scores.posts = numberPosts;
-				updateScores( scores, function( error, data ) {
-					callback();
-				} );
-			}
-		);
-	} );
-	return jobs;
 }
 
 // grab all players
