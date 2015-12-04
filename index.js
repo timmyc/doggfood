@@ -13,17 +13,18 @@ app.use( express.static( 'public' ) );
 app.set( 'view engine', 'jade' );
 app.set('port', (process.env.PORT || 5000));
 
-var BEARER_TOKEN = config.wpcom_token;
+var BEARER_TOKEN = config.wpcom_token || process.env.WPCOM_TOKEN;
 
 var wpcom = require( 'wpcom' )( BEARER_TOKEN ), // new wpcom instance with our bearer token
 	Players = require( './players' ), // an object of our players github -> wpcom user mappings
 	postCountData = require( './post-counts' ), // data set from an api for post counts
-	site = wpcom.site( config.wpcom_site ), // shortcut to the wpcom site we are using for data storage
+	site = wpcom.site( config.wpcom_site || process.env.WPCOM_SITE ), // shortcut to the wpcom site we are using for data storage
 	async = require( 'async' ),
 	strip = require( 'strip' ),
 	forEach = require( 'lodash/collection/forEach' ),
 	assign = require( 'lodash/object/assign' ),
-	sortByOrder = require( 'lodash/collection/sortByOrder' );
+	sortByOrder = require( 'lodash/collection/sortByOrder' ),
+	githubLabel = config.github_label || process.env.GITHUB_LABEL;
 
 /*
 * Helper functions
@@ -149,7 +150,7 @@ app.post( '/github/issue', function( req, res ) {
 	var data = req.body,
 		label = data.label && data.label.name ? data.label.name : null;
 
-	if ( data.action === 'labeled' && label === config.github_label ) {
+	if ( data.action === 'labeled' && label === githubLabel ) {
 		var user = data.sender.login.toLowerCase(),
 			issueNumber = data.issue ? data.issue.number : null;
 			username = Players[ user ];
