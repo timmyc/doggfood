@@ -175,6 +175,18 @@ app.post( '/github/issue', function( req, res ) {
 	} 
 } );
 
+app.post( '/webhook', function( req, res ) {
+	var data = req.body,
+		modified_dt = new Date( data.post_modified_gmt ),
+    	post_dt = new Date( data.post_date_gmt );
+
+    console.log( 'data', data );
+
+    if ( Math.abs( modified_dt - post_dt ) < 5000 ) {
+
+    }
+} );
+
 app.get( '/update-post-counts', function( req, res ) {
 	// convert data into a nice object
 	var postCounts = {},
